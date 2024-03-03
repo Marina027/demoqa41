@@ -14,56 +14,62 @@ import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
+import java.time.Duration;
 
-public class ConfigManager { // on the lesson: BaseTest.java
+
+public class ConfigManager { // on the lessons: BaseTest.java
 
     private static WebDriver driver;
-    public static WebDriverManager getDriver(){
 
-        if(driver == null){
-            setUp();
+    public static WebDriver getDriver() {
+        if(driver == null) {
+            setUp("chrome");
         }
         return driver;
     }
-@BeforeSuite
-@Parameters("browser")
-    private static void setUp(@Optional("chrome")String browser) {
-if(browser.equalsIgnoreCase("chrome")){
-    ChromeOptions chromeOptions = new ChromeOptions();
-    chromeOptions.addArguments("---lang=en");
- //   chromeOptions.addArguments("--headless");
-    WebDriverManager.chromedriver().setup();
-    driver = new ChromeDriver(chromeOptions);
-      } else if (browser.equalsIgnoreCase("firefox")) {
-    FirefoxOptions firefoxOptions = new FirefoxOptions();
-    firefoxOptions.addPreference("intl.accsept_languages", "en");
-    firefoxOptions.addArguments("-headless");
-    WebDriverManager.firefoxdriver().setup();
-    driver = new FirefoxDriver(firefoxOptions);
 
-} else if (browser.equalsIgnoreCase("edge")) {
-    EdgeOptions edgeOptions = new EdgeOptions();
-    edgeOptions.setCapability("language","en" );
-    edgeOptions.addArguments("--headless");
-    WebDriverManager.edgedriver().setup();
-    driver = new EdgeDriver(edgeOptions);
+    // @BeforeSuite
+    @Parameters("browser")
+    public static void setUp(@Optional("chrome") String browser) {
+        if(browser.equalsIgnoreCase("chrome")) {
+            ChromeOptions chromeOptions = new ChromeOptions();
+            chromeOptions.addArguments("--lang=en");
+//            chromeOptions.addArguments("--headless");
+            WebDriverManager.chromedriver().setup();
+            driver = new ChromeDriver(chromeOptions);
+        }
+        else if (browser.equalsIgnoreCase("firefox")) {
+            FirefoxOptions firefoxOptions = new FirefoxOptions();
+            firefoxOptions.addPreference("intl.accept_languages", "en");
+//            firefoxOptions.addArguments("-headless");
+            WebDriverManager.firefoxdriver().setup();
+            driver = new FirefoxDriver(firefoxOptions);
+        }
+        else if(browser.equalsIgnoreCase("edge")) {
+            EdgeOptions edgeOptions = new EdgeOptions();
+            edgeOptions.setCapability("language", "en");
+//            edgeOptions.addArguments("--headless");
+            WebDriverManager.edgedriver().setup();
+            driver = new EdgeDriver(edgeOptions);
+        }
+        else if(browser.equalsIgnoreCase("safari")) {
+            SafariOptions safariOptions = new SafariOptions();
+            safariOptions.setCapability("language", "en");
+            WebDriverManager.safaridriver().setup();
+            driver = new SafariDriver(safariOptions);
+        }
+        else {
+            throw new IllegalArgumentException("Invalid browser name: " + browser);
+        }
+        driver.manage().window().maximize();
+        driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(20));
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(60));
+        driver.navigate().to("https://demoqa.com/");
+    }
 
-} else if (browser.equalsIgnoreCase("safari")) {
-    SafariOptions safariOptions = new SafariOptions();
-    safariOptions.setCapability("language", "en");
-    WebDriverManager.safaridriver().setup();
-    driver = new SafariDriver(safariOptions);
-
-}
-else {
-    throw new IllegalArgumentException("Invalid browser name:" + browser);
-
-}
-}
-@AfterSuite
-   private static void tearDown(){
+    // @AfterSuite
+    public static void tearDown() {
         driver.quit();
-}
-
+    }
 }
 
